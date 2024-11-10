@@ -27,7 +27,5 @@ this.Contact = client.db().collection("contacts");
         );
         return result.value;
     }
-
 } 
-
 module.exports = ContactService;
