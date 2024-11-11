@@ -1,13 +1,15 @@
 {
   "name": "dc23v7x214-nguyenvietlong",
   "version": "1.0.0",
+  "description": "A contact management backend application built with Express and MongoDB",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "lint": "eslint '**/*.js'", 
+    "format": "prettier --write '**/*.{js,json}'" 
   },
   "author": "Anh Long",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@types/mongodb": "^4.0.6",
     "cors": "^2.8.5",
