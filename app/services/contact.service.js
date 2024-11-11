@@ -1,83 +1,80 @@
-const { ObjectId } = require('mongodb');
+const { ObjectId } = require('mongodb')
 
 class ContactService {
     constructor(client) {
-        this.Contact = client.db().collection("contacts");
+        this.Contact = client.db().collection("contacts")
     }
 
-    extractContactData(payload) { 
+    extractConactData(payload) {
         const contact = {
             name: payload.name,
             email: payload.email,
             address: payload.address,
             phone: payload.phone,
-            favorite: payload.favorite === true, 
-        };
+            favorite: payload.favorite,
+        }
 
-        Object.keys(contact).forEach((key) => contact[key] === undefined && delete contact[key]); 
-        return contact;
+        Object.keys(contact).forEach((key) => !contact[key] && delete contact[key])
+        return contact
     }
 
     async create(payload) {
-        const contact = this.extractContactData(payload);
+        const contact = this.extractConactData(payload)
         const res = await this.Contact.findOneAndUpdate(
             contact,
-            { $set: { favorite: contact.favorite } },
+            { $set: { favorite: contact.favorite === true } },
             { returnDocument: "after", upsert: true }
-        );
-        return res.value; 
+        )
+        return res
     }
 
     async find(filter) {
-        const cursor = await this.Contact.find(filter);
-        return await cursor.toArray();
+        const cursor = await this.Contact.find(filter)
+        return await cursor.toArray()
     }
 
     async findByName(name) {
-        return await this.find({
-            name: { $regex: new RegExp(name, "i") }, 
-        });
+        const res = await this.find({
+            name: { $regex: new RegExp(name), $options: "i" },
+        })
+        return res
     }
 
     async findById(id) {
-        if (!ObjectId.isValid(id)) {
-            return null; 
-        }
-        return await this.Contact.findOne({ _id: new ObjectId(id) });
+        return await this,this.Contact.FindOne({
+            _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
+        });
     }
 
     async update(id, payload) {
-        if (!ObjectId.isValid(id)) {
-            return null; 
-        }
-        const filter = { _id: new ObjectId(id) };
-        const update = this.extractContactData(payload);
+        const filter = {
+           _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
+        };
+        const update = this.extractConactData(payload)
         const result = await this.Contact.findOneAndUpdate(
             filter,
             { $set: update },
             { returnDocument: "after" }
         );
-        return result.value; 
+        return result.value; //return result;
     }
 
     async delete(id) {
-        if (!ObjectId.isValid(id)) {
-            return null; 
-        }
-        const result = await this.Contact.findOneAndDelete({
-            _id: new ObjectId(id),
-        });
-        return result.value; 
+        const res = await this.Contact.findOneAndDelete({
+            _id: ObjectId.isValid(id) ? new ObjectId(id) : null
+        })
+        return res
     }
 
     async deleteAll() {
-        const result = await this.Contact.deleteMany({});
-        return result.deletedCount; 
+        const res = await this.Contact.deleteMany({})
+        return res.deletedCount
     }
 
     async findFavorite() {
-        return await this.find({ favorite: true });
+        const res = await this.find({ favorite: true })
+        return res
     }
 }
 
-module.exports = ContactService;
+module.exports = ContactService
